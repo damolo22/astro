@@ -1,0 +1,124 @@
+---
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/800.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <!-- Top Navigation Bar simulating a social app -->
+    <nav class="top-nav">
+      <div class="nav-content">
+        <h1 class="logo">Smoothie<span class="accent">Social</span></h1>
+        <div class="nav-links">
+          <a href="#" class="active">Feed</a>
+          <a href="#">Explore</a>
+          <a href="#">Profile</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Feed Container -->
+    <main class="feed-container">
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #ec4899; /* Pink accent for smoothies */
+    --accent-hover: #db2777;
+    --radius: 12px;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  /* Navigation Styles */
+  .top-nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 1rem 0;
+  }
+
+  .nav-content {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+  }
+
+  .accent {
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--text);
+  }
+
+  .nav-links a.active {
+    color: var(--accent);
+  }
+
+  /* Main Container */
+  .feed-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+</style>

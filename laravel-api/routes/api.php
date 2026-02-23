@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\SmoothieController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/posts',      [PostController::class, 'index']);
 Route::get('/posts/{post}', [PostController::class, 'show']);
+Route::get('/smoothies',  [SmoothieController::class, 'index']);

@@ -1,0 +1,118 @@
+---
+import LikeButton from './LikeButton.jsx';
+
+interface Props {
+  smoothie: {
+    id: number;
+    author: string;
+    avatar: string;
+    title: string;
+    description: string;
+    image: string;
+    likes: number;
+    time_ago: string;
+  };
+}
+
+const { smoothie } = Astro.props;
+---
+
+<article class="post-card">
+  <!-- Header: Author Info -->
+  <header class="post-header">
+    <img src={smoothie.avatar} alt={smoothie.author} class="avatar" />
+    <div class="author-info">
+      <strong>{smoothie.author}</strong>
+      <span class="time">{smoothie.time_ago}</span>
+    </div>
+  </header>
+
+  <!-- Image -->
+  <img src={smoothie.image} alt={smoothie.title} class="post-image" loading="lazy" />
+
+  <!-- Action Bar: Injected React Component -->
+  <div class="action-bar">
+    <!-- client:visible ensures React only loads when the button scrolls into view -->
+    <LikeButton client:visible initialLikes={smoothie.likes} />
+  </div>
+
+  <!-- Content -->
+  <div class="post-content">
+    <h2 class="post-title">{smoothie.title}</h2>
+    <p class="post-desc"><span class="author-inline">{smoothie.author}</span> {smoothie.description}</p>
+  </div>
+</article>
+
+<style>
+  .post-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+
+  .author-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .author-info strong {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .post-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    display: block;
+    background: var(--bg);
+  }
+
+  .action-bar {
+    padding: 0.8rem 1rem 0;
+  }
+
+  .post-content {
+    padding: 0.5rem 1rem 1.2rem;
+  }
+
+  .post-title {
+    margin: 0 0 0.4rem 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  .post-desc {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .author-inline {
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+</style>
