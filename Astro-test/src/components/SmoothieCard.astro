@@ -1,5 +1,6 @@
 ---
 import LikeButton from './LikeButton.jsx';
+import CommentSection from './CommentSection.jsx';
 
 interface Props {
   smoothie: {
@@ -11,6 +12,7 @@ interface Props {
     image: string;
     likes: number;
     time_ago: string;
+    comments: any[];
   };
 }
 
@@ -22,7 +24,9 @@ const { smoothie } = Astro.props;
   <header class="post-header">
     <img src={smoothie.avatar} alt={smoothie.author} class="avatar" />
     <div class="author-info">
-      <strong>{smoothie.author}</strong>
+      <a href={`/profile/${smoothie.author}`} class="author-link">
+        <strong>{smoothie.author}</strong>
+      </a>
       <span class="time">{smoothie.time_ago}</span>
     </div>
   </header>
@@ -39,7 +43,15 @@ const { smoothie } = Astro.props;
   <!-- Content -->
   <div class="post-content">
     <h2 class="post-title">{smoothie.title}</h2>
-    <p class="post-desc"><span class="author-inline">{smoothie.author}</span> {smoothie.description}</p>
+    <p class="post-desc">
+      <a href={`/profile/${smoothie.author}`} class="author-inline-link">
+        <span class="author-inline">{smoothie.author}</span>
+      </a> 
+      {smoothie.description}
+    </p>
+
+    <!-- NEW: Injecting the React Comment Section! client:load makes it interactive immediately -->
+    <CommentSection client:load initialComments={smoothie.comments} />
   </div>
 </article>
 
@@ -74,6 +86,15 @@ const { smoothie } = Astro.props;
   .author-info strong {
     font-size: 0.95rem;
     color: var(--text);
+  }
+
+  .author-link, .author-inline-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .author-link:hover strong, .author-inline-link:hover .author-inline {
+    text-decoration: underline;
   }
 
   .time {

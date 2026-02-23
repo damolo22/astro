@@ -1,0 +1,95 @@
+---
+import SocialLayout from '../../layouts/SocialLayout.astro';
+import SmoothieCard from '../../components/SmoothieCard.astro';
+
+export async function getStaticPaths() {
+  // During build time, Astro will fetch ALL smoothies from the API
+  const response = await fetch('http://127.0.0.1:8000/api/smoothies');
+  const smoothies = await response.json();
+
+  // Find all unique authors from the API response
+  const authors = [...new Set(smoothies.map((s: any) => s.author))];
+
+  // Tell Astro to generate a unique page for each author statically!
+  return authors.map((author) => {
+    return {
+      params: { username: author },
+      props: { 
+        // Filter smoothies to only pass this author's posts to their page
+        userSmoothies: smoothies.filter((s: any) => s.author === author) 
+      }
+    };
+  });
+}
+
+// These are populated by the `getStaticPaths` function above
+const { username } = Astro.params;
+const { userSmoothies } = Astro.props;
+---
+
+<SocialLayout title={`${username}'s Profile | SmoothieSocial`}>
+  
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${username}`} alt={username} />
+    </div>
+    <div class="profile-info">
+      <h1>{username}</h1>
+      <p>Smoothie Enthusiast • {userSmoothies.length} Posts</p>
+    </div>
+  </div>
+
+  <div class="feed-divider">
+    <h2>Recent Posts</h2>
+  </div>
+
+  {userSmoothies.map((smoothie: any) => (
+    <SmoothieCard smoothie={smoothie} />
+  ))}
+
+</SocialLayout>
+
+<style>
+  .profile-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--bg);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .profile-info h1 {
+    margin: 0 0 0.3rem;
+    font-size: 1.6rem;
+    color: var(--text);
+  }
+  .profile-info p {
+    margin: 0;
+    color: var(--text-muted);
+  }
+  .feed-divider {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .feed-divider h2 {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+</style>

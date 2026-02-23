@@ -4,15 +4,24 @@ Welcome to the **SmoothieSocial** simulation! This project demonstrates how to b
 
 ## 🚀 The Architecture
 
-This project is a small-scale simulation of a real-world team workflow:
-1. **The API (`laravel-api`)**: The data layer. It provides the backend endpoints (e.g., fetching a list of smoothie posts).
-2. **The Layout (`Mates' Contribution`)**: The HTML/CSS structure built with Astro components (`SocialLayout.astro`, `SmoothieCard.astro`). This represents the static, fast-loading UI handed off by a design team.
-3. **The Interactivity (`Your Contribution`)**: The highly interactive React components (like `LikeButton.jsx`) injected into the static Astro cards using the **Islands Architecture**.
+### 1. The React Interactivity (`Your Contribution`)
+We use React for highly interactive, state-driven components:
+- **Like Button (`LikeButton.jsx`)**: Instantly updates likes with animations. 
+- **Comment Section (`CommentSection.jsx`)**: Fetches initial comments from the API, and allows users to instantly type and post new comments to the feed natively. 
 
-### Why This Stack?
+These React components are injected into the static Astro cards using the **Islands Architecture** (`client:visible` and `client:load`), which means the heavy JS *only* loads exactly when needed.
 
-- **Astro (The 90%)**: Astro renders the HTML on the server. The feed, the images, and the text are shipped to the browser with **Zero JavaScript**. This makes the initial page load blazing fast.
-- **React (The 10%)**: For complex interactions (like a Like button that updates state immediately and animates), we drop in a React component (`<LikeButton client:visible />`). The JS for this component *only* loads when the user scrolls it into view.
+### 2. The Astro Layout and Routes (`Mates' Contribution`)
+Astro provides the static, fast-loading HTML/CSS structure handed off by the design team:
+- **The Feed (`index.astro`)**: Fetches all smoothies from the API at build-time and maps them to pure HTML `SmoothieCard.astro` elements.
+- **Dynamic Profile Pages (`[username].astro`)**: Shows how Astro's dynamic routing creates custom URLs. Clicking an author's name automatically builds a beautiful, dedicated profile page, fetching *only* that user's smoothies from the backend. 
+- **The Layout (`SocialLayout.astro`)**: Defines the global CSS, Navigation Bar, and the feed wrapper.
+
+### 3. The API (`laravel-api`)
+The Laravel Backend defines our data layer, returning JSON endpoints containing:
+- Smoothie title, description, and images.
+- The author and their avatar.
+- An array of associated comments on the post.
 
 ## 📂 Project Structure
 
