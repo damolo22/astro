@@ -1,0 +1,111 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+
+// 🌐 Runs at build time (SSG) to fetch posts from Laravel API!
+let posts = [];
+let error = null;
+
+try {
+  // We use localhost:8000 because Laravel is running locally.
+  // In production, you'd use an environment variable (e.g. import.meta.env.API_URL)
+  const res = await fetch('http://localhost:8000/api/posts');
+
+  if (!res.ok) throw new Error('API returned ' + res.status);
+
+  const json = await res.json();
+  posts = json.data;
+} catch (e: any) {
+  error = e.message;
+  console.error('Failed to fetch posts from Laravel:', e);
+}
+---
+
+<Layout title="Blog | Astro Showcase 🚀">
+  <main class="page">
+    <header class="page-header">
+      <span class="tag tag-blue">API Integration</span>
+      <h1>Tech Blog</h1>
+      <p>These posts are fetched from the <strong>Laravel API</strong> at build time using Astro's Server-Side Static Generation (SSG).</p>
+    </header>
+
+    {error ? (
+      <div class="error-state">
+        <span class="error-icon">⚠️</span>
+        <h3>Could not connect to API</h3>
+        <p>Make sure Laravel is running on port 8000 (`php artisan serve`).</p>
+        <p class="error-detail">{error}</p>
+      </div>
+    ) : (
+      <div class="posts-grid">
+        {posts.map((post: any) => (
+          <PostCard {...post} />
+        ))}
+      </div>
+    )}
+  </main>
+</Layout>
+
+<style>
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: .8rem;
+    padding-top: 2rem;
+  }
+  .page-header h1 {
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.02em;
+  }
+  .page-header p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+  .page-header strong { color: var(--text); }
+
+  /* 📱 Fully responsive Grid using CSS auto-fill! */
+  .posts-grid {
+    display: grid;
+    /* On mobile, 1 column. On tablets, 2 col. On desktop, 3 col. */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Error State Styles */
+  .error-state {
+    background: rgba(244,114,182,.08);
+    border: 1px solid rgba(244,114,182,.3);
+    border-radius: var(--radius);
+    padding: 3rem 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .8rem;
+  }
+  .error-icon { font-size: 3rem; line-height: 1; }
+  .error-state h3 { color: #fff; font-size: 1.3rem; }
+  .error-state p { color: var(--pink); font-size: .95rem; }
+  .error-detail {
+    margin-top: 1rem;
+    font-family: var(--mono);
+    font-size: .8rem !important;
+    background: rgba(0,0,0,.3);
+    padding: .5rem 1rem;
+    border-radius: 6px;
+  }
+</style>

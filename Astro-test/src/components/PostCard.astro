@@ -1,0 +1,113 @@
+---
+// 🧩 PostCard — displays a blog post preview fetched from the Laravel API
+interface Props {
+  id: number;
+  title: string;
+  author: string;
+  category: string;
+  cover_emoji: string;
+  excerpt: string;
+  read_minutes: number;
+}
+
+const { id, title, author, category, cover_emoji, excerpt, read_minutes } = Astro.props;
+
+const categoryColors: Record<string, string> = {
+  Astro:      'purple',
+  Laravel:    'orange',
+  CSS:        'pink',
+  JavaScript: 'blue',
+  TypeScript: 'blue',
+  DevOps:     'green',
+  PHP:        'purple',
+};
+const color = categoryColors[category] ?? 'purple';
+---
+
+<a href={`/blog/${id}`} class={`post-card post-card--${color}`}>
+  <div class="card-glow" aria-hidden="true"></div>
+  <div class="card-top">
+    <span class="card-emoji">{cover_emoji}</span>
+    <span class={`tag tag-${color}`}>{category}</span>
+  </div>
+  <h3 class="card-title">{title}</h3>
+  <p class="card-excerpt">{excerpt}</p>
+  <div class="card-footer">
+    <span class="card-author">✍️ {author}</span>
+    <span class="card-time">⏱ {read_minutes} min read</span>
+  </div>
+</a>
+
+<style>
+  .post-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: .85rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.6rem;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .25s, box-shadow .25s, border-color .25s;
+  }
+  .post-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,.15);
+  }
+  .post-card--purple:hover { box-shadow: 0 20px 50px rgba(124,58,237,.25); }
+  .post-card--orange:hover { box-shadow: 0 20px 50px rgba(251,146,60,.2); }
+  .post-card--pink:hover   { box-shadow: 0 20px 50px rgba(244,114,182,.2); }
+  .post-card--blue:hover   { box-shadow: 0 20px 50px rgba(56,189,248,.2); }
+  .post-card--green:hover  { box-shadow: 0 20px 50px rgba(52,211,153,.2); }
+
+  .card-glow {
+    position: absolute; inset: 0; opacity: 0; pointer-events: none;
+    border-radius: inherit; transition: opacity .3s;
+  }
+  .post-card:hover .card-glow { opacity: 1; }
+  .post-card--purple .card-glow { background: radial-gradient(ellipse at top left, rgba(124,58,237,.18), transparent 70%); }
+  .post-card--orange .card-glow { background: radial-gradient(ellipse at top left, rgba(251,146,60,.15), transparent 70%); }
+  .post-card--pink   .card-glow { background: radial-gradient(ellipse at top left, rgba(244,114,182,.15), transparent 70%); }
+  .post-card--blue   .card-glow { background: radial-gradient(ellipse at top left, rgba(56,189,248,.15), transparent 70%); }
+  .post-card--green  .card-glow { background: radial-gradient(ellipse at top left, rgba(52,211,153,.15), transparent 70%); }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-emoji { font-size: 2rem; line-height: 1; }
+
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+    letter-spacing: -.01em;
+    flex: 1;
+  }
+  .card-excerpt {
+    font-size: .875rem;
+    color: var(--muted);
+    line-height: 1.65;
+    flex: 1;
+    /* clamp to 3 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: .78rem;
+    color: var(--muted);
+    padding-top: .5rem;
+    border-top: 1px solid var(--border);
+  }
+  .card-author { font-weight: 500; }
+</style>

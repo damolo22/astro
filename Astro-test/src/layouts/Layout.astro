@@ -1,0 +1,214 @@
+---
+// 🔥 Astro Layout — the outer HTML shell shared by all pages.
+// Props let us customize the <title> per-page!
+const { title = 'Astro Showcase' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- 📱 Responsive Navbar -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="/" class="nav-brand">
+          <span class="brand-icon">🚀</span>
+          <strong>Astro</strong>Showcase
+        </a>
+
+        <!-- Hamburger Button for Mobile -->
+        <button class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="icon-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="icon-close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+
+        <!-- Desktop + Mobile Nav Links -->
+        <ul class="nav-links">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/blog" class="nav-link">Blog</a></li>
+          <li><a href="https://docs.astro.build" class="nav-link nav-external" target="_blank">Docs ↗</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- 🎰 <slot /> is where child content from pages gets injected -->
+    <slot />
+
+    <!-- Pure JS for Mobile Menu Toggle -->
+    <script>
+      const toggle = document.querySelector('.menu-toggle');
+      const links = document.querySelector('.nav-links');
+
+      toggle?.addEventListener('click', () => {
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        links?.classList.toggle('is-open');
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0a0a12;
+    --surface:   #13131f;
+    --surface2:  #1c1c2e;
+    --border:    rgba(255,255,255,.08);
+    --accent:    #7c3aed;
+    --accent2:   #a78bfa;
+    --accent3:   #38bdf8;
+    --green:     #34d399;
+    --pink:      #f472b6;
+    --orange:    #fb923c;
+    --text:      #e2e8f0;
+    --muted:     #64748b;
+    --radius:    14px;
+    --font:      'Inter', system-ui, sans-serif;
+    --mono:      'Fira Code', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 99px; }
+
+  /* Selection */
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* Utility */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: .25rem .65rem;
+    border-radius: 99px;
+    border: 1px solid;
+  }
+  .tag-purple { color: var(--accent2); border-color: var(--accent2); background: rgba(124,58,237,.12); }
+  .tag-blue   { color: var(--accent3); border-color: var(--accent3); background: rgba(56,189,248,.12); }
+  .tag-green  { color: var(--green);   border-color: var(--green);   background: rgba(52,211,153,.12); }
+  .tag-pink   { color: var(--pink);    border-color: var(--pink);    background: rgba(244,114,182,.12); }
+  .tag-orange { color: var(--orange);  border-color: var(--orange);  background: rgba(251,146,60,.12); }
+
+  code {
+    font-family: var(--mono);
+    font-size: .85em;
+    background: rgba(124,58,237,.18);
+    color: var(--accent2);
+    padding: .1em .4em;
+    border-radius: 5px;
+  }
+  /* 📱 Navbar */
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 10, 18, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: 1.25rem;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: -.02em;
+  }
+  .brand-icon { font-size: 1.5rem; line-height: 1; }
+  .nav-brand strong { font-weight: 800; }
+
+  .nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .95rem;
+    font-weight: 500;
+    transition: color .2s;
+  }
+  .nav-link:hover { color: #fff; }
+  .nav-external { display: inline-flex; align-items: center; gap: .2rem; }
+
+  /* Hamburger Menu Toggle (Mobile) */
+  .menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    padding: .5rem; margin: -.5rem;
+    z-index: 101;
+  }
+  .icon-close { display: none; }
+  .menu-toggle[aria-expanded="true"] .icon-close { display: block; }
+  .menu-toggle[aria-expanded="true"] .icon-menu { display: none; }
+
+  /* 📱 Responsive Breakpoints */
+  @media (max-width: 768px) {
+    .menu-toggle { display: block; }
+    
+    .nav-links {
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      /* Hidden by default on mobile */
+      display: none;
+    }
+    .nav-links.is-open {
+      display: flex;
+    }
+    .nav-links li {
+      border-top: 1px solid rgba(255,255,255,.05);
+    }
+    .nav-link {
+      display: block;
+      padding: 1rem 1.5rem;
+      font-size: 1.05rem;
+    }
+  }
+</style>

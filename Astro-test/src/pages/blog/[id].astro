@@ -1,0 +1,201 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// 🛑 `getStaticPaths` runs at BUILD TIME to generate all dynamic routes
+export async function getStaticPaths() {
+  try {
+    const res = await fetch('http://localhost:8000/api/posts');
+    if (!res.ok) return [];
+
+    const json = await res.json();
+    const posts = json.data;
+
+    // We must return an array of objects specifying `{ params: { id } }`
+    return posts.map((post: any) => ({
+      params: { id: String(post.id) },
+    }));
+  } catch (e) {
+    console.error('Failed to pre-render dynamic routes:', e);
+    return [];
+  }
+}
+
+// 🌐 Wait, how do we get the actual content? We fetch it using the ID!
+const { id } = Astro.params;
+
+let post: any = null;
+try {
+  const res = await fetch(`http://localhost:8000/api/posts/${id}`);
+  const json = await res.json();
+  post = json.data;
+} catch (e) {
+  return Astro.redirect('/404');
+}
+
+// Security: Use marked or an Astro Markdown parser in a real app if body is markdown.
+// Here we'll just quickly process basic markdown for safety:
+const renderMarkdown = (md: string) => {
+  if (!md) return '';
+  // Super simple & safe regex replacement for demo purposes
+  return md
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/\n\n/g, '<br/><br/>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/```[a-z]*\n([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+};
+---
+
+<Layout title={`${post.title} | Astro Showcase`}>
+  <article class="post-layout">
+    <div class="post-glow" aria-hidden="true"></div>
+
+    <header class="post-header">
+      <a href="/blog" class="back-link">← Back to Blog</a>
+
+      <div class="post-meta-top">
+        <span class="post-emoji">{post.cover_emoji}</span>
+        <span class="tag tag-purple">{post.category}</span>
+        <span class="meta-separator">•</span>
+        <time class="post-date">
+          {new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </time>
+      </div>
+
+      <h1>{post.title}</h1>
+
+      <div class="post-author-row">
+        <div class="author-avatar">✍️</div>
+        <div class="author-info">
+          <strong>{post.author}</strong>
+          <span>{post.read_minutes} min read</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="post-content">
+      <!-- ⚠️ set:html injects raw HTML. Astro forces you to type it explicitly to prevent accidental XSS! -->
+      <div set:html={renderMarkdown(post.body)} />
+    </div>
+  </article>
+</Layout>
+
+<style is:global>
+  .post-layout {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+  }
+
+  .post-glow {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse at top, rgba(124,58,237,.15), transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .back-link {
+    display: inline-flex;
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color .2s;
+  }
+  .back-link:hover { color: var(--accent2); }
+
+  .post-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+  }
+
+  .post-meta-top {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+  }
+  .post-emoji { font-size: 1.8rem; line-height: 1; margin-right: .5rem; }
+  .meta-separator { color: var(--border); }
+  .post-date { font-size: .88rem; color: var(--muted); }
+
+  .post-header h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    letter-spacing: -.02em;
+  }
+
+  .post-author-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .author-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .author-info {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+  }
+  .author-info strong { color: #fff; font-size: .95rem; }
+  .author-info span { color: var(--muted); font-size: .82rem; }
+
+  /* Markdown Content Styles */
+  .post-content {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--text);
+  }
+  .post-content h1 { display: none; /* Already showing in header */ }
+  .post-content h2 {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    letter-spacing: -.01em;
+  }
+  .post-content p { margin-bottom: 1.5rem; }
+  .post-content strong { color: #fff; }
+  .post-content code:not(pre code) {
+    font-family: var(--mono);
+    font-size: .85em;
+    background: rgba(124,58,237,.18);
+    color: var(--accent2);
+    padding: .1em .4em;
+    border-radius: 5px;
+  }
+  .post-content pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1.2rem;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin: 2rem 0;
+  }
+  .post-content pre code {
+    background: none;
+    color: #e2e8f0;
+    padding: 0;
+    font-size: .9em;
+  }
+  .post-content ul { margin: 1rem 0 1.5rem 1.5rem; }
+  .post-content li { margin-bottom: .5rem; }
+</style>

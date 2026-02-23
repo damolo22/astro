@@ -1,0 +1,116 @@
+---
+// ⚡ Counter — demonstrates CLIENT-SIDE INTERACTIVITY in Astro
+// Astro is static by default. Use <script> tags to add browser JS.
+// This is the "Islands Architecture" concept!
+interface Props {
+  label?: string;
+  initialCount?: number;
+}
+const { label = 'Interactive Counter', initialCount = 0 } = Astro.props;
+---
+
+<div class="counter" data-initial={initialCount}>
+  <p class="counter-label">{label}</p>
+  <div class="counter-controls">
+    <button class="btn btn-dec" aria-label="Decrement">−</button>
+    <output class="counter-value">0</output>
+    <button class="btn btn-inc" aria-label="Increment">+</button>
+  </div>
+  <button class="btn btn-reset">Reset</button>
+  <p class="counter-hint">
+    ✨ This is <strong>real JS</strong> running in the browser — Astro's Island!
+  </p>
+</div>
+
+<!-- Astro scopes <style> to this component automatically -->
+<style>
+  .counter {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .counter-label {
+    font-size: .85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+  }
+  .counter-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .counter-value {
+    font-size: 3.5rem;
+    font-weight: 900;
+    min-width: 4rem;
+    background: linear-gradient(135deg, var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-variant-numeric: tabular-nums;
+  }
+  .btn {
+    cursor: pointer;
+    font-family: var(--font);
+    font-weight: 700;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: .5rem 1.2rem;
+    font-size: 1.2rem;
+    background: var(--surface);
+    color: var(--text);
+    transition: all .2s;
+  }
+  .btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    transform: scale(1.05);
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-dec, .btn-inc { width: 48px; height: 48px; padding: 0; font-size: 1.6rem; }
+  .btn-reset {
+    font-size: .8rem;
+    padding: .3rem .9rem;
+    opacity: .6;
+  }
+  .btn-reset:hover { opacity: 1; background: var(--surface2); border-color: var(--pink); color: var(--pink); }
+  .counter-hint {
+    font-size: .78rem;
+    color: var(--muted);
+    max-width: 280px;
+  }
+  .counter-hint strong { color: var(--green); }
+</style>
+
+<!-- 🔥 <script> adds client-side JS. Astro bundles & scopes it automatically. -->
+<script>
+  document.querySelectorAll<HTMLElement>('.counter').forEach((el) => {
+    const initial = Number(el.dataset.initial ?? 0);
+    let count = initial;
+
+    const output = el.querySelector<HTMLElement>('.counter-value')!;
+    const inc    = el.querySelector<HTMLButtonElement>('.btn-inc')!;
+    const dec    = el.querySelector<HTMLButtonElement>('.btn-dec')!;
+    const reset  = el.querySelector<HTMLButtonElement>('.btn-reset')!;
+
+    const render = () => {
+      output.textContent = String(count);
+      output.style.transform = 'scale(1.15)';
+      setTimeout(() => (output.style.transform = ''), 150);
+    };
+
+    render();
+    inc.addEventListener('click',   () => { count++; render(); });
+    dec.addEventListener('click',   () => { count--; render(); });
+    reset.addEventListener('click', () => { count = initial; render(); });
+  });
+</script>
