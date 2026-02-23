@@ -15,7 +15,7 @@ class SmoothieController extends Controller
                 'avatar' => 'https://api.dicebear.com/7.x/notionists/svg?seed=SarahFitness',
                 'title' => 'Berry Blast Morning Smoothie 🍓✨',
                 'description' => 'My go-to morning smoothie! Just blend frozen mixed berries, half a banana, spinach, almond milk, and a scoop of vanilla protein. Keeps me full until lunch!',
-                'image' => 'https://images.unsplash.com/photo-1553530666-ba11a7ddc520?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'image' => 'https://images.unsplash.com/photo-1628557044797-f21a177c37ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
                 'likes' => 124,
                 'time_ago' => '2 hours ago',
                 'comments' => [
