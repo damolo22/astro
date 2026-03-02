@@ -1,0 +1,70 @@
+---
+// This page must be server-rendered (cannot be pre-built statically)
+// because we use it for the auth flow interactivity
+export const prerender = false;
+
+import SocialLayout from '../layouts/SocialLayout.astro';
+import AuthForm from '../components/AuthForm.jsx';
+---
+
+<SocialLayout title="Sign In | SmoothieSocial">
+  <div class="login-wrapper">
+
+    <div class="login-header">
+      <div class="login-icon">🥤</div>
+      <h1>Welcome back!</h1>
+      <p>Sign in or create a free account to join the smoothie community.</p>
+    </div>
+
+    <!-- AuthForm is a React island — loads interactively on the client -->
+    <AuthForm client:load />
+
+    <p class="back-link"><a href="/">← Back to Feed</a></p>
+  </div>
+</SocialLayout>
+
+<style>
+  .login-wrapper {
+    max-width: 440px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .login-header {
+    text-align: center;
+  }
+
+  .login-icon {
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .login-header h1 {
+    margin: 0 0 0.4rem;
+    font-size: 1.8rem;
+    font-weight: 800;
+  }
+
+  .login-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .back-link {
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  .back-link a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .back-link a:hover {
+    color: var(--accent);
+  }
+</style>

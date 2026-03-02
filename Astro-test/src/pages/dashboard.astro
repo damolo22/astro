@@ -1,0 +1,246 @@
+---
+// Protected page — must be dynamic (SSR)
+export const prerender = false;
+
+import SocialLayout from '../layouts/SocialLayout.astro';
+---
+
+<SocialLayout title="Dashboard | SmoothieSocial">
+  <div id="dashboard-content" class="dashboard-wrapper">
+    <!-- Filled in by the client script below once token is verified -->
+    <div class="loading-state">
+      <span class="spinner">🥤</span>
+      <p>Loading your profile…</p>
+    </div>
+  </div>
+</SocialLayout>
+
+<!-- Client-side auth check & render -->
+<script>
+  const API = 'http://127.0.0.1:8000/api';
+  const container = document.getElementById('dashboard-content');
+
+  async function init() {
+    const token = localStorage.getItem('auth_token');
+
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API}/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        window.location.href = '/login';
+        return;
+      }
+
+      const { user } = await res.json();
+      renderDashboard(user, token);
+    } catch {
+      container.innerHTML = `
+        <div class="error-state">
+          <p>⚠️ Could not connect to the API. Is Laravel running on port 8000?</p>
+          <a href="/" class="back-btn">← Back to Feed</a>
+        </div>
+      `;
+    }
+  }
+
+  function renderDashboard(user, token) {
+    const joined = new Date(user.created_at).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric',
+    });
+
+    container.innerHTML = `
+      <div class="profile-card">
+        <img
+          src="https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(user.name)}"
+          alt="${user.name}"
+          class="profile-avatar"
+        />
+        <div class="profile-info">
+          <h1>👋 Welcome, ${user.name}!</h1>
+          <p class="profile-email">${user.email}</p>
+          <p class="profile-joined">Member since ${joined}</p>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h2>🔑 Your API Token</h2>
+        <p class="token-hint">This is your Sanctum API token stored in localStorage. In a real app you'd use secure httpOnly cookies.</p>
+        <code class="token-display" id="token-display">${token.substring(0, 40)}…</code>
+      </div>
+
+      <div class="info-card">
+        <h2>✅ Auth Viability Check</h2>
+        <ul class="checklist">
+          <li>✅ <strong>Register</strong> — Creates user, returns token</li>
+          <li>✅ <strong>Login</strong> — Validates credentials, returns token</li>
+          <li>✅ <strong>Protected routes</strong> — /api/me requires valid Bearer token</li>
+          <li>✅ <strong>Token revocation</strong> — Logout deletes the token from DB</li>
+          <li>✅ <strong>Astro Islands</strong> — Auth UI works alongside static content</li>
+        </ul>
+      </div>
+
+      <div class="actions">
+        <a href="/" class="btn-secondary">← Back to Feed</a>
+        <button onclick="logout()" class="btn-danger">Sign Out</button>
+      </div>
+    `;
+  }
+
+  window.logout = async function() {
+    const token = localStorage.getItem('auth_token');
+    await fetch(`${API}/logout`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
+    }).catch(() => {});
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    window.location.href = '/';
+  };
+
+  init();
+</script>
+
+<style>
+  .dashboard-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .loading-state, .error-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+  }
+
+  .spinner {
+    display: block;
+    font-size: 3rem;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .profile-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    flex-shrink: 0;
+  }
+
+  .profile-info h1 {
+    margin: 0 0 0.3rem;
+    font-size: 1.5rem;
+  }
+
+  .profile-email {
+    margin: 0 0 0.2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .profile-joined {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+
+  .info-card h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  .token-hint {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .token-display {
+    display: block;
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+    word-break: break-all;
+    color: #475569;
+  }
+
+  .checklist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .checklist li { font-size: 0.95rem; }
+
+  .actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+
+  .btn-secondary, .btn-danger {
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: background 0.2s, opacity 0.2s;
+  }
+
+  .btn-secondary {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-danger {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-danger:hover { background: var(--accent-hover); }
+</style>

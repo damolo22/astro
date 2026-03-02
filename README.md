@@ -8,6 +8,8 @@ Welcome to the **SmoothieSocial** simulation! This project demonstrates how to b
 We use React for highly interactive, state-driven components:
 - **Like Button (`LikeButton.jsx`)**: Instantly updates likes with animations. 
 - **Comment Section (`CommentSection.jsx`)**: Fetches initial comments from the API, and allows users to instantly type and post new comments to the feed natively. 
+- **Auth Form (`AuthForm.jsx`)**: Tabbed login/register form calling the Laravel API.
+- **User Menu (`UserMenu.jsx`)**: Nav bar island — shows Sign In or user avatar based on auth state.
 
 These React components are injected into the static Astro cards using the **Islands Architecture** (`client:visible` and `client:load`), which means the heavy JS *only* loads exactly when needed.
 
@@ -15,6 +17,8 @@ These React components are injected into the static Astro cards using the **Isla
 Astro provides the static, fast-loading HTML/CSS structure handed off by the design team:
 - **The Feed (`index.astro`)**: Fetches all smoothies from the API at build-time and maps them to pure HTML `SmoothieCard.astro` elements.
 - **Dynamic Profile Pages (`[username].astro`)**: Shows how Astro's dynamic routing creates custom URLs. Clicking an author's name automatically builds a beautiful, dedicated profile page, fetching *only* that user's smoothies from the backend. 
+- **Login Page (`login.astro`)**: SSR page rendering the `AuthForm` React island.
+- **Dashboard (`dashboard.astro`)**: SSR-protected page showing user info after login.
 - **The Layout (`SocialLayout.astro`)**: Defines the global CSS, Navigation Bar, and the feed wrapper.
 
 ### 3. The API (`laravel-api`)
@@ -22,11 +26,27 @@ The Laravel Backend defines our data layer, returning JSON endpoints containing:
 - Smoothie title, description, and images.
 - The author and their avatar.
 - An array of associated comments on the post.
+- **Auth endpoints** powered by Laravel Sanctum (register, login, logout, me).
 
 ## 📂 Project Structure
 
 - `/Astro-test`: The Astro frontend application containing the UI and React components.
-- `/laravel-api`: The Laravel backend API providing the mock social feed data.
+- `/laravel-api`: The Laravel backend API providing the mock social feed data and auth.
+
+## 🔑 User Management (Sanctum Auth)
+
+Auth routes available at `http://127.0.0.1:8000/api`:
+
+| Method | Endpoint | Auth Required |
+|--------|----------|--------------|
+| POST | `/register` | No |
+| POST | `/login` | No |
+| POST | `/logout` | Bearer token |
+| GET | `/api/me` | Bearer token |
+
+**Test accounts** (seeded):
+- `sarah@smoothie.social` / `password`
+- `green@smoothie.social` / `password`
 
 ## 🛠️ Getting Started
 
@@ -46,3 +66,6 @@ The Laravel Backend defines our data layer, returning JSON endpoints containing:
 
 3. **View the App**:
    Open your browser to `http://localhost:4321` to see the SmoothieSocial feed in action!
+   - Visit `/login` to register or sign in.
+   - Visit `/dashboard` to see the protected user page.
+
